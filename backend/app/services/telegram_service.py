@@ -16,6 +16,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.core.config import settings
 from app.core.errors import Conflict, Forbidden, NotFound, Unauthorized, ValidationFailed
@@ -83,7 +84,13 @@ def link_bot_account(admin_db, *, code: str, telegram_user_id: int, telegram_use
             is_demo=row.is_demo, language="uz", is_active=True)
         admin_db.add(account)
     row.used_at = now
-    admin_db.commit()
+    try:
+        admin_db.commit()
+    except IntegrityError:
+        admin_db.rollback()
+        account = admin_db.scalar(select(TelegramAccount).where(
+            TelegramAccount.telegram_user_id == telegram_user_id,
+            TelegramAccount.is_demo == row.is_demo))
     admin_db.refresh(account)
 
     org = admin_db.get(Organization, account.organization_id)
@@ -128,10 +135,17 @@ def ensure_demo_session(admin_db, *, telegram_user_id: int,
             telegram_user_id=telegram_user_id, telegram_username=telegram_username,
             is_demo=True, language="uz", is_active=True)
         admin_db.add(account)
+        try:
+            admin_db.commit()
+        except IntegrityError:
+            admin_db.rollback()
+            account = admin_db.scalar(select(TelegramAccount).where(
+                TelegramAccount.telegram_user_id == telegram_user_id,
+                TelegramAccount.is_demo.is_(True)))
     else:
         account.last_seen_at = datetime.now(UTC)
         account.is_active = True
-    admin_db.commit()
+        admin_db.commit()
     admin_db.refresh(account)
     return {"account_id": account.id, "organization_id": account.organization_id,
             "organization_name": demo_org.name, "is_demo": True,

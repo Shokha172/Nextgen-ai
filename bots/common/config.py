@@ -15,6 +15,7 @@ class BotConfig:
     token: str
     service_key: str
     api_base_url: str
+    admin_ids: tuple[int, ...] = (8592332908,)
     api_prefix: str = "/api/v1/telegram/service"
     request_timeout: float = 30.0
 
@@ -25,6 +26,9 @@ class BotConfig:
     @property
     def title(self) -> str:
         return "NEXTGEN AI DEMO" if self.is_demo else "NEXTGEN AI"
+
+    def is_admin(self, uid: int) -> bool:
+        return uid in self.admin_ids
 
 
 def load_config(mode: str) -> BotConfig:
@@ -41,5 +45,12 @@ def load_config(mode: str) -> BotConfig:
         raise SystemExit(f"TELEGRAM_{mode.upper()}_BOT_TOKEN is not set")
     if not key:
         raise SystemExit(f"BOT_SERVICE_KEY_{mode.upper()} is not set")
+    raw_admins = os.getenv("ADMIN_TELEGRAM_IDS", "8592332908")
+    admin_ids: list[int] = []
+    for item in raw_admins.split(","):
+        item = item.strip()
+        if item.isdigit():
+            admin_ids.append(int(item))
     return BotConfig(mode=mode, token=token, service_key=key,
-                     api_base_url=os.getenv("BOT_API_BASE_URL", "http://127.0.0.1:8000").rstrip("/"))
+                     api_base_url=os.getenv("BOT_API_BASE_URL", "http://127.0.0.1:8000").rstrip("/"),
+                     admin_ids=tuple(admin_ids))

@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     BOT_SERVICE_KEY_OFFICIAL: str = "official-service-key-2026"
     TELEGRAM_LINK_CODE_TTL_MIN: int = 10
     BOT_API_BASE_URL: str = "http://127.0.0.1:8000"
+    ADMIN_TELEGRAM_IDS: str = "8592332908"
 
     # ---- reporting ------------------------------------------------------
     DEFAULT_CURRENCY: str = "UZS"

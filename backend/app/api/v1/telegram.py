@@ -93,7 +93,7 @@ class BotSession(BaseModel):
 class ServiceChat(BaseModel):
     telegram_user_id: int
     question: str = Field(min_length=3, max_length=1000)
-    language: str = Field(default="uz", pattern="^(uz|ru|en)$")
+    language: str = Field(default="uz", pattern="^(uz|ru|en|kk|tr|ky)$")
 
 
 def _bot_tenant(mode: BotMode, telegram_user_id: int) -> Tenant:
@@ -281,3 +281,36 @@ def bot_unlink(mode: BotMode, payload: BotSession):
                                                 mode=mode)
         telegram_service.unlink(admin, account_id=account.id)
     return {"message": "Unlinked"}
+
+
+@router.get("/telegram/service/admin-stats", summary="Bot: system statistics for designated admin")
+def admin_stats(mode: BotMode, telegram_user_id: int):
+    from sqlalchemy import func
+    from app.core.config import settings
+    from app.models import Anomaly, AuditLog, Meter, MeterReading
+
+    admin_ids = [int(x.strip()) for x in settings.ADMIN_TELEGRAM_IDS.split(",") if x.strip().isdigit()]
+    if telegram_user_id not in admin_ids:
+        raise Forbidden("Faqat tizim administratorlari uchun", code="admin_only")
+
+    with AdminSessionLocal() as admin:
+        orgs_count = admin.scalar(select(func.count()).select_from(Organization)) or 0
+        users_count = admin.scalar(select(func.count()).select_from(User)) or 0
+        meters_count = admin.scalar(select(func.count()).select_from(Meter)) or 0
+        readings_count = admin.scalar(select(func.count()).select_from(MeterReading)) or 0
+        anomalies_count = admin.scalar(select(func.count()).select_from(Anomaly)) or 0
+        telegram_count = admin.scalar(select(func.count()).select_from(TelegramAccount)) or 0
+        audit_count = admin.scalar(select(func.count()).select_from(AuditLog)) or 0
+
+    return {
+        "admin_telegram_id": telegram_user_id,
+        "organizations": orgs_count,
+        "users": users_count,
+        "meters": meters_count,
+        "readings": readings_count,
+        "anomalies": anomalies_count,
+        "telegram_accounts": telegram_count,
+        "audit_logs": audit_count,
+        "environment": settings.ENVIRONMENT,
+        "server_time": datetime.now(UTC).isoformat()
+    }

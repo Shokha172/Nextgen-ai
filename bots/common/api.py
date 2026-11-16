@@ -111,3 +111,6 @@ class BackendClient:
 
     async def toggle_alerts(self, uid: int) -> dict:
         return await self._request("POST", "/alerts", params={"telegram_user_id": uid})
+
+    async def admin_stats(self, uid: int) -> dict:
+        return await self._request("GET", "/admin-stats", params={"telegram_user_id": uid})

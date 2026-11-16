@@ -8,7 +8,7 @@ from bots.common.i18n import LANGUAGES, t
 REPORTS = {"dashboard": "📊", "consumption": "📈", "anomalies": "⚠️", "forecast": "🔮"}
 
 
-def main_menu(language: str, *, is_demo: bool) -> InlineKeyboardMarkup:
+def main_menu(language: str, *, is_demo: bool, is_admin: bool = False) -> InlineKeyboardMarkup:
     rows = [
         [InlineKeyboardButton(text=t(language, "dashboard"), callback_data="menu:dashboard"),
          InlineKeyboardButton(text=t(language, "analysis"), callback_data="menu:analysis")],
@@ -19,8 +19,17 @@ def main_menu(language: str, *, is_demo: bool) -> InlineKeyboardMarkup:
     ]
     if not is_demo:
         rows.append([InlineKeyboardButton(text=t(language, "upload"), callback_data="menu:upload")])
+    if is_admin:
+        rows.append([InlineKeyboardButton(text="👑 Admin Panel", callback_data="menu:admin")])
     rows.append([InlineKeyboardButton(text=t(language, "help"), callback_data="menu:help")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def admin_keyboard(language: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔄 Yangilash", callback_data="admin:refresh")],
+        [InlineKeyboardButton(text=t(language, "back"), callback_data="menu:main")]
+    ])
 
 
 def back_keyboard(language: str) -> InlineKeyboardMarkup:

@@ -103,7 +103,7 @@ async def run_simulator(mode: str = "demo") -> None:
 
             elif cmd in ("/dashboard", "1"):
                 data = await api.dashboard(USER_ID, "month")
-                formatted = dashboard_text(data, lang, is_demo=(mode == "demo"))
+                formatted = dashboard_text(data, lang, label=t(lang, "month"))
                 print("\n" + formatted + "\n")
 
             elif cmd in ("/anomalies", "3"):

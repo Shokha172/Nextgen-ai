@@ -18,7 +18,7 @@ from bots.common.api import BackendClient, BotAPIError
 from bots.common.config import BotConfig
 from bots.common.formatting import dashboard_text, kwh, money, num, pct
 from bots.common.i18n import t
-from bots.common.keyboards import (back_keyboard, language_keyboard, main_menu,
+from bots.common.keyboards import (admin_keyboard, back_keyboard, language_keyboard, main_menu,
                                    report_keyboard, settings_keyboard)
 
 PERIODS = {"today": "today", "week": "week", "month": "month", "year": "year"}
@@ -33,7 +33,7 @@ class AskStates(StatesGroup):
 
 
 def _lang(ctx_lang: str | None) -> str:
-    return ctx_lang if ctx_lang in ("uz", "ru", "en") else "uz"
+    return ctx_lang if ctx_lang in LANGUAGES else "uz"
 
 
 class SessionCache:
@@ -92,7 +92,7 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
             lang = cache.language(uid)
             await _send(message, t(lang, "welcome", name=name) + t(lang, "welcome_demo")
                         + f"\n\n<b>{session['organization_name']}</b>",
-                        reply_markup=main_menu(lang, is_demo=True))
+                        reply_markup=main_menu(lang, is_demo=True, is_admin=cfg.is_admin(uid)))
             return
 
         # official bot
@@ -111,14 +111,14 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
             lang = cache.language(uid)
             await _send(message, t(lang, "linked", org=session["organization_name"],
                                    role=session.get("role") or "—"),
-                        reply_markup=main_menu(lang, is_demo=False))
+                        reply_markup=main_menu(lang, is_demo=False, is_admin=cfg.is_admin(uid)))
             return
 
         me = await _ensure_session(message)
         if me:
             lang = _lang(me.get("language"))
             await _send(message, t(lang, "welcome", name=name) + t(lang, "menu"),
-                        reply_markup=main_menu(lang, is_demo=False))
+                        reply_markup=main_menu(lang, is_demo=False, is_admin=cfg.is_admin(uid)))
         else:
             await _send(message, t("uz", "welcome", name=name) + t("uz", "welcome_official"))
 
@@ -279,6 +279,45 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
                               role=me.get("role", "—"), lang=lang),
                             reply_markup=settings_keyboard(lang))
 
+    # ----------------------------------------------------------------- /admin
+    @router.message(Command("admin"))
+    async def admin_cmd(message: Message) -> None:
+        await _admin(message, message.from_user.id)
+
+    async def _admin(target: Message, uid: int) -> None:
+        if not cfg.is_admin(uid):
+            await target.answer("⛔ <i>Kechirasiz, bu buyruq faqat tizim administratorlari uchun mo'ljallangan.</i>")
+            return
+        lang = cache.language(uid)
+        try:
+            stats = await api.admin_stats(uid)
+        except BotAPIError as exc:
+            await target.answer(f"{t(lang, 'error')}\n<i>{exc.message}</i>")
+            return
+        server_ts = stats.get("server_time", "")[:19].replace("T", " ")
+        text = (
+            f"👑 <b>NEXTGEN AI — Tizim Administratori Paneli</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 <b>Admin ID:</b> <code>{uid}</code>\n"
+            f"🏢 <b>Korxonalar:</b> {stats.get('organizations', 0)} ta\n"
+            f"👥 <b>Foydalanuvchilar:</b> {stats.get('users', 0)} ta\n"
+            f"⚡ <b>Hisoblagichlar:</b> {stats.get('meters', 0)} ta\n"
+            f"📊 <b>O'lchovlar bazasi:</b> {num(stats.get('readings', 0), 0)} ta\n"
+            f"⚠️ <b>Anomaliyalar:</b> {stats.get('anomalies', 0)} ta\n"
+            f"📱 <b>Ulangan botlar:</b> {stats.get('telegram_accounts', 0)} ta\n"
+            f"📝 <b>Audit qaydlari:</b> {stats.get('audit_logs', 0)} ta\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"🖥 <b>Server holati:</b> ONLINE (FastAPI + Next.js)\n"
+            f"🕒 <b>Server vaqti (UTC):</b> {server_ts}\n"
+        )
+        if hasattr(target, "edit_text") and target.text:
+            try:
+                await target.edit_text(text, reply_markup=admin_keyboard(lang))
+                return
+            except Exception:
+                pass
+        await target.answer(text, reply_markup=admin_keyboard(lang))
+
     # ------------------------------------------------------------------ /help
     @router.message(Command("help"))
     async def help_cmd(message: Message) -> None:
@@ -309,7 +348,8 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
     async def cb_main(cb: CallbackQuery) -> None:
         lang = cache.language(cb.from_user.id)
         await cb.message.edit_text(t(lang, "menu"),
-                                   reply_markup=main_menu(lang, is_demo=cfg.is_demo))
+                                   reply_markup=main_menu(lang, is_demo=cfg.is_demo,
+                                                          is_admin=cfg.is_admin(cb.from_user.id)))
         await cb.answer()
 
     @router.callback_query(F.data == "menu:dashboard")
@@ -394,8 +434,19 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
         cached["language"] = code
         cache.set(uid, cached)
         await cb.message.edit_text(t(code, "lang_set"),
-                                   reply_markup=main_menu(code, is_demo=cfg.is_demo))
+                                   reply_markup=main_menu(code, is_demo=cfg.is_demo,
+                                                          is_admin=cfg.is_admin(cb.from_user.id)))
         await cb.answer()
+
+    @router.callback_query(F.data == "menu:admin")
+    async def cb_admin(cb: CallbackQuery) -> None:
+        await cb.answer()
+        await _admin(cb.message, cb.from_user.id)
+
+    @router.callback_query(F.data == "admin:refresh")
+    async def cb_admin_refresh(cb: CallbackQuery) -> None:
+        await cb.answer("Yangilandi!")
+        await _admin(cb.message, cb.from_user.id)
 
     @router.callback_query(F.data == "settings:alerts")
     async def cb_alerts(cb: CallbackQuery) -> None:
