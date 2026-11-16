@@ -3,8 +3,7 @@ from __future__ import annotations
 
 TEXTS: dict[str, dict[str, str]] = {
     "uz": {
-        "welcome": "Assalomu alaykum, {name}!\n\n<b>NEXTGEN AI</b> — energiya ma'lumotlarini "
-                   "intellektual qarorlarga aylantiradi.",
+        "welcome": "Assalomu alaykum, {name}!\n\n⚡ <b>NEXTGEN AI</b> — Sanoat korxonalari uchun intellektual energiya boshqaruvi platformasi.\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev",
         "welcome_demo": "\n\n⚠️ Bu <b>DEMO</b> bot: barcha ko'rsatkichlar sintetik (o'ylab "
                         "topilgan) ma'lumotlarga asoslangan. Haqiqiy korxona ma'lumotlari emas.",
         "welcome_official": "\n\nHisobingizga ulanish uchun web-platformada bir martalik kod "
@@ -61,8 +60,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ask_prompt": "Savolingizni yozing (masalan: «Kecha nima uchun iste'mol oshdi?»).",
     },
     "ru": {
-        "welcome": "Здравствуйте, {name}!\n\n<b>NEXTGEN AI</b> превращает данные об энергии в "
-                   "интеллектуальные решения.",
+        "welcome": "Здравствуйте, {name}!\n\n⚡ <b>NEXTGEN AI</b> — Корпоративная платформа энергоаналитики.\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev",
         "welcome_demo": "\n\n⚠️ Это <b>ДЕМО</b>-бот: все данные синтетические, не реальные "
                         "показатели предприятия.",
         "welcome_official": "\n\nЧтобы подключить аккаунт, создайте одноразовый код в веб-"
@@ -118,8 +116,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ask_prompt": "Напишите вопрос (например: «Почему вчера выросло потребление?»).",
     },
     "en": {
-        "welcome": "Hello, {name}!\n\n<b>NEXTGEN AI</b> turns energy data into intelligent "
-                   "decisions.",
+        "welcome": "Hello, {name}!\n\n⚡ <b>NEXTGEN AI</b> — Enterprise Energy Intelligence Platform.\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev",
         "welcome_demo": "\n\n⚠️ This is the <b>DEMO</b> bot: every figure is synthetic. It is "
                         "not a real enterprise's data.",
         "welcome_official": "\n\nTo link your account, create a one-time code in the web "
@@ -175,8 +172,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ask_prompt": "Type your question (e.g. “Why did consumption rise yesterday?”).",
     },
     "kk": {
-        "welcome": "Сәлеметсіз бе, {name}!\n\n<b>NEXTGEN AI</b> — энергия деректерін "
-                   "интеллектуалды шешімдерге айналдырады.",
+        "welcome": "Сәлеметсіз бе, {name}!\n\n⚡ <b>NEXTGEN AI</b> — Кәсіпорындар үшін энергия интеллекті платформасы.\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev",
         "welcome_demo": "\n\n⚠️ Бұл <b>ДЕМО</b> бот: барлық көрсеткіштер синтетикалық "
                         "деректерге негізделген. Нақты кәсіпорын деректері емес.",
         "welcome_official": "\n\nТіркелгіңізге қосылу үшін веб-платформада бір реттік код "
@@ -233,8 +229,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ask_prompt": "Сұрағыңызды жазыңыз (мысалы: «Кеше тұтыну неге өсті?»).",
     },
     "tr": {
-        "welcome": "Merhaba, {name}!\n\n<b>NEXTGEN AI</b> enerji verilerini akıllı kararlara "
-                   "dönüştürür.",
+        "welcome": "Merhaba, {name}!\n\n⚡ <b>NEXTGEN AI</b> — Kurumsal Enerji Zekası Platformu.\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev",
         "welcome_demo": "\n\n⚠️ Bu <b>DEMO</b> bottur: tüm göstergeler sentetik verilere "
                         "dayanır. Gerçek işletme verisi değildir.",
         "welcome_official": "\n\nHesabınızı bağlamak için web platformunda tek kullanımlık kod "
@@ -291,8 +286,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "ask_prompt": "Sorunuzu yazın (örn: «Dün tüketim neden arttı?»).",
     },
     "ky": {
-        "welcome": "Саламатсызбы, {name}!\n\n<b>NEXTGEN AI</b> энергия маалыматтарын "
-                   "акылдуу чечимдерге айландырат.",
+        "welcome": "Саламатсызбы, {name}!\n\n⚡ <b>NEXTGEN AI</b> — Ишканалар үчүн энергия аналитика платформасы.\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev",
         "welcome_demo": "\n\n⚠️ Бул <b>ДЕМО</b> бот: бардык көрсөткүчтөр синтетикалык "
                         "маалыматтарга негизделген. Чыныгы ишкана маалыматы эмес.",
         "welcome_official": "\n\nЭсебиңизге туташуу үчүн веб-платформада бир жолку код "

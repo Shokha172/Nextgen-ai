@@ -281,8 +281,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </ul>
         </div>
       ))}
-      <div className="mt-auto rounded-lg border border-line/70 bg-surface2/40 p-2.5 text-[11px] leading-relaxed text-muted">
-        {t("dashboard.cost_note")}
+      <div className="mt-auto flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-[11px] leading-relaxed text-muted">
+        <div className="flex items-center gap-1.5 font-medium text-ink">
+          <span className="h-2 w-2 rounded-full bg-success"></span>
+          <span className="text-[11px] font-semibold text-primary">Shohjahon Abdullayev</span>
+        </div>
+        <p className="text-[10px] text-muted leading-tight">
+          Bosh loyiha me&apos;mori va Lead Developer. Mualliflik huquqi himoyalangan © 2026.
+        </p>
       </div>
     </nav>
   );
@@ -325,6 +331,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            <div className="hidden items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-primary sm:flex">
+              <span className="h-1.5 w-1.5 rounded-full bg-success"></span>
+              <span>Dev: Shohjahon Abdullayev</span>
+            </div>
             <LanguageSwitcher />
             <Link
               href="/notifications"
@@ -397,8 +407,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <main className="min-w-0 flex-1 px-3 py-4 sm:px-5 sm:py-6">{children}</main>
 
-        <footer className="border-t border-line px-3 py-3 text-[11px] text-muted sm:px-5">
-          NEXTGEN AI · {t("app.tagline")} · kWh / kW · Asia/Tashkent
+        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-3 py-3 text-[11px] text-muted sm:px-5">
+          <span>NEXTGEN AI · {t("app.tagline")} · Asia/Tashkent</span>
+          <span className="font-medium text-ink">
+            👨‍💻 Muallif va Lead Developer: <strong className="font-semibold text-primary">Shohjahon Abdullayev</strong>
+          </span>
         </footer>
       </div>
     </div>

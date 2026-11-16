@@ -22,6 +22,7 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="hidden items-center gap-4 text-white/80 sm:flex">
+            <span className="rounded bg-white/20 px-2 py-0.5 text-xs font-semibold text-white">👨‍💻 Dev: Shohjahon Abdullayev</span>
             <span>Standart: O‘zDst / ISO 50001</span>
             <span className="text-white/40">|</span>
             <span>Toshkent vaqti: UTC+5</span>
@@ -157,6 +158,10 @@ export default function LandingPage() {
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#155EEF]/20 bg-[#155EEF]/5 px-3 py-1 text-xs font-semibold text-[#155EEF]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#155EEF]" />
                 O‘ZBEKISTON KORXONALARI UCHUN ENERGETIKA INTELEKTI
+              </div>
+              <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold text-[#123B72]">
+                <span>👨‍💻 Bosh me&apos;mor &amp; Dasturchi:</span>
+                <span className="rounded-md bg-[#155EEF] px-2.5 py-0.5 text-white shadow-xs">Shohjahon Abdullayev</span>
               </div>
 
               <h1 className="text-3xl font-extrabold tracking-tight text-[#123B72] sm:text-4xl lg:text-5xl">
@@ -575,8 +580,11 @@ export default function LandingPage() {
                 N
               </span>
               <span className="font-bold text-[#123B72]">NEXTGEN AI</span>
+              <span className="rounded bg-[#155EEF]/10 px-2 py-0.5 text-[11px] font-semibold text-[#155EEF]">
+                Developer: Shohjahon Abdullayev
+              </span>
             </div>
-            <span>© 2026 NEXTGEN AI. O‘zbekiston Respublikasi. Barcha huquqlar himoyalangan.</span>
+            <span>© 2026 NEXTGEN AI. Muallif va Lead Developer: <strong>Shohjahon Abdullayev</strong>. Barcha huquqlar himoyalangan.</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-6">

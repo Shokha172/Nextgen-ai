@@ -7,12 +7,14 @@ not in duplicated handler code.
 from __future__ import annotations
 
 import io
+import logging
+import os
 
 from aiogram import Bot, F, Router
 from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import BufferedInputFile, CallbackQuery, Message
+from aiogram.types import BufferedInputFile, CallbackQuery, FSInputFile, Message
 
 from bots.common.api import BackendClient, BotAPIError
 from bots.common.config import BotConfig
@@ -74,6 +76,26 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
     async def _send(message: Message, text: str, **kwargs) -> None:
         await message.answer(text, **kwargs)
 
+    async def _reply_or_edit(target: Message, text: str, reply_markup=None) -> None:
+        """Safely edit message or answer depending on whether target has a photo or text."""
+        if hasattr(target, "edit_text"):
+            if getattr(target, "photo", None):
+                if len(text) <= 1000:
+                    try:
+                        await target.edit_caption(caption=text, reply_markup=reply_markup)
+                        return
+                    except Exception:
+                        pass
+                await target.answer(text, reply_markup=reply_markup)
+                return
+            elif getattr(target, "text", None):
+                try:
+                    await target.edit_text(text, reply_markup=reply_markup)
+                    return
+                except Exception:
+                    pass
+        await target.answer(text, reply_markup=reply_markup)
+
     # ---------------------------------------------------------------- /start
     @router.message(Command("start"))
     async def start(message: Message, command: CommandObject, bot: Bot) -> None:
@@ -90,9 +112,25 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
                 return
             cache.set(uid, {**session, "language": _lang(session.get("language"))})
             lang = cache.language(uid)
-            await _send(message, t(lang, "welcome", name=name) + t(lang, "welcome_demo")
-                        + f"\n\n<b>{session['organization_name']}</b>",
-                        reply_markup=main_menu(lang, is_demo=True, is_admin=cfg.is_admin(uid)))
+
+            caption = (
+                t(lang, "welcome", name=name) + "\n"
+                + t(lang, "welcome_demo")
+                + f"\n\n🏢 <b>{session['organization_name']}</b>"
+                + f"\n📊 <i>17 280+ o'lchov · ⚡ 6 hisoblagich · ⚠️ 14 anomaliya</i>"
+            )
+            banner_path = os.path.join(os.path.dirname(__file__), "..", "assets", "welcome_banner.png")
+            if os.path.exists(banner_path):
+                try:
+                    await message.answer_photo(
+                        photo=FSInputFile(banner_path),
+                        caption=caption[:1020],
+                        reply_markup=main_menu(lang, is_demo=True, is_admin=cfg.is_admin(uid))
+                    )
+                    return
+                except Exception:
+                    pass
+            await _send(message, caption, reply_markup=main_menu(lang, is_demo=True, is_admin=cfg.is_admin(uid)))
             return
 
         # official bot
@@ -298,6 +336,7 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
         text = (
             f"👑 <b>NEXTGEN AI — Tizim Administratori Paneli</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"👨‍💻 <b>Developer:</b> Shohjahon Abdullayev\n"
             f"👤 <b>Admin ID:</b> <code>{uid}</code>\n"
             f"🏢 <b>Korxonalar:</b> {stats.get('organizations', 0)} ta\n"
             f"👥 <b>Foydalanuvchilar:</b> {stats.get('users', 0)} ta\n"
@@ -310,13 +349,7 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
             f"🖥 <b>Server holati:</b> ONLINE (FastAPI + Next.js)\n"
             f"🕒 <b>Server vaqti (UTC):</b> {server_ts}\n"
         )
-        if hasattr(target, "edit_text") and target.text:
-            try:
-                await target.edit_text(text, reply_markup=admin_keyboard(lang))
-                return
-            except Exception:
-                pass
-        await target.answer(text, reply_markup=admin_keyboard(lang))
+        await _reply_or_edit(target, text, reply_markup=admin_keyboard(lang))
 
     # ------------------------------------------------------------------ /help
     @router.message(Command("help"))
@@ -347,9 +380,10 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
     @router.callback_query(F.data == "menu:main")
     async def cb_main(cb: CallbackQuery) -> None:
         lang = cache.language(cb.from_user.id)
-        await cb.message.edit_text(t(lang, "menu"),
-                                   reply_markup=main_menu(lang, is_demo=cfg.is_demo,
-                                                          is_admin=cfg.is_admin(cb.from_user.id)))
+        menu_text = t(lang, "menu") + "\n\n👨‍💻 <b>Developer:</b> Shohjahon Abdullayev"
+        await _reply_or_edit(cb.message, menu_text,
+                             reply_markup=main_menu(lang, is_demo=cfg.is_demo,
+                                                    is_admin=cfg.is_admin(cb.from_user.id)))
         await cb.answer()
 
     @router.callback_query(F.data == "menu:dashboard")
@@ -474,7 +508,8 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
         await cb.answer()
 
     @router.errors()
-    async def on_error(event) -> bool:  # pragma: no cover - defensive path
+    async def on_error(event) -> bool:
+        logging.getLogger("nextgen.bot").exception("Bot unhandled error: %s", event.exception)
         return True
 
     return router
