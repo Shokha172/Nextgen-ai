@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- NEXTGEN AI Official Institutional Blue & White Palette -------- */
+  --color-bg: #f5f8fc;
+  --color-surface: #ffffff;
+  --color-surface2: #edf2f9;
+  --color-primary: #155eef;
+  --color-deep-blue: #123b72;
+  --color-accent: #0ba5ec;
+  --color-success: #12a66a;
+  --color-warning: #e9a23b;
+  --color-danger: #d92d20;
+  --color-ink: #172b4d;
+  --color-muted: #667085;
+  --color-line: #e4eaf2;
+
+  --font-sans: Inter, "Inter var", Geist, "Segoe UI", system-ui, -apple-system,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* Crisp, subtle scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+@utility card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.05), 0 1px 2px -1px rgba(16, 24, 40, 0.03);
+}
+
+@utility focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+@keyframes ng-fade {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-in {
+  animation: ng-fade 140ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
