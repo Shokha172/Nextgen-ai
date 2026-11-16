@@ -19,7 +19,7 @@ from aiogram.types import BufferedInputFile, CallbackQuery, FSInputFile, Message
 from bots.common.api import BackendClient, BotAPIError
 from bots.common.config import BotConfig
 from bots.common.formatting import dashboard_text, kwh, money, num, pct
-from bots.common.i18n import t
+from bots.common.i18n import LANGUAGES, t
 from bots.common.keyboards import (admin_keyboard, back_keyboard, language_keyboard, main_menu,
                                    report_keyboard, settings_keyboard)
 
