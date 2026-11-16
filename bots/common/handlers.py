@@ -409,7 +409,7 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
     @router.callback_query(F.data == "menu:report")
     async def cb_report(cb: CallbackQuery) -> None:
         lang = cache.language(cb.from_user.id)
-        await cb.message.edit_text(t(lang, "report_choose"), reply_markup=report_keyboard(lang))
+        await _reply_or_edit(cb.message, t(lang, "report_choose"), reply_markup=report_keyboard(lang))
         await cb.answer()
 
     @router.callback_query(F.data == "menu:settings")
@@ -420,7 +420,7 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
     @router.callback_query(F.data == "menu:help")
     async def cb_help(cb: CallbackQuery) -> None:
         lang = cache.language(cb.from_user.id)
-        await cb.message.edit_text(t(lang, "help_text"), reply_markup=back_keyboard(lang))
+        await _reply_or_edit(cb.message, t(lang, "help_text"), reply_markup=back_keyboard(lang))
         await cb.answer()
 
     @router.callback_query(F.data == "menu:upload")
@@ -451,8 +451,8 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
 
     @router.callback_query(F.data == "settings:lang")
     async def cb_lang(cb: CallbackQuery) -> None:
-        await cb.message.edit_text(t(cache.language(cb.from_user.id), "choose_lang"),
-                                   reply_markup=language_keyboard())
+        await _reply_or_edit(cb.message, t(cache.language(cb.from_user.id), "choose_lang"),
+                             reply_markup=language_keyboard())
         await cb.answer()
 
     @router.callback_query(F.data.startswith("lang:"))
@@ -467,9 +467,9 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
         cached = cache.get(uid) or {}
         cached["language"] = code
         cache.set(uid, cached)
-        await cb.message.edit_text(t(code, "lang_set"),
-                                   reply_markup=main_menu(code, is_demo=cfg.is_demo,
-                                                          is_admin=cfg.is_admin(cb.from_user.id)))
+        await _reply_or_edit(cb.message, t(code, "lang_set"),
+                             reply_markup=main_menu(code, is_demo=cfg.is_demo,
+                                                    is_admin=cfg.is_admin(cb.from_user.id)))
         await cb.answer()
 
     @router.callback_query(F.data == "menu:admin")
@@ -504,7 +504,7 @@ def build_router(cfg: BotConfig, api: BackendClient, cache: SessionCache) -> Rou
             await cb.answer(t(lang, "error"), show_alert=True)
             return
         cache.drop(uid)
-        await cb.message.edit_text(t(lang, "unlinked"))
+        await _reply_or_edit(cb.message, t(lang, "unlinked"))
         await cb.answer()
 
     @router.errors()

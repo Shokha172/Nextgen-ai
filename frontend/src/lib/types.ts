@@ -177,8 +177,18 @@ export interface DashboardSummary {
   anomalies: {
     count: number;
     unacknowledged: number;
-    critical: number;
-    latest: Array<{
+    critical?: number;
+    by_severity?: Record<string, number>;
+    latest?: Array<{
+      id: string;
+      meter: string;
+      ts: string;
+      observed_kwh: number;
+      expected_kwh: number;
+      deviation_pct: number;
+      severity: Severity;
+    }>;
+    top?: Array<{
       id: string;
       meter: string;
       ts: string;

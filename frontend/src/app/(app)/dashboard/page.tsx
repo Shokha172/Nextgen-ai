@@ -51,6 +51,11 @@ export default function DashboardPage() {
   const data = summary.data;
   const loading = summary.loading;
 
+  const latestAnomalies = data?.anomalies?.top ?? data?.anomalies?.latest ?? [];
+  const criticalCount = data?.anomalies?.by_severity?.critical ?? data?.anomalies?.critical ?? 0;
+  const seriesPoints = series.data?.series ?? [];
+  const meterBreakdowns = series.data?.by_meter ?? [];
+
   return (
     <div>
       <PageHeader
@@ -164,8 +169,8 @@ export default function DashboardPage() {
               </span>
             </span>
             <span className="ml-auto flex items-center gap-2">
-              <Badge tone={data.anomalies.critical > 0 ? "danger" : data.anomalies.count > 0 ? "warning" : "success"}>
-                {t("dashboard.kpi.anomalies")}: {data.anomalies.count}
+              <Badge tone={criticalCount > 0 ? "danger" : (data.anomalies?.count ?? 0) > 0 ? "warning" : "success"}>
+                {t("dashboard.kpi.anomalies")}: {data.anomalies?.count ?? 0}
               </Badge>
               <Link href="/anomalies" className="text-accent underline underline-offset-2">
                 {t("dashboard.view_all")}
@@ -184,22 +189,26 @@ export default function DashboardPage() {
                     : t("dashboard.tariff_missing")
                 }
               />
-              {series.data ? (
+              {seriesPoints.length > 0 ? (
                 <LineChart
                   ariaLabel={t("dashboard.consumption_chart")}
                   unit="kWh"
-                  labels={series.data.series.map((point) => point.label)}
+                  labels={seriesPoints.map((point) => point.label)}
                   series={[
                     {
                       name: t("dashboard.kpi.consumption"),
                       color: "var(--color-primary)",
-                      values: series.data.series.map((point) => point.consumption_kwh),
+                      values: seriesPoints.map((point) => point.consumption_kwh),
                     },
                   ]}
                   height={260}
                 />
-              ) : (
+              ) : series.loading ? (
                 <Skeleton className="h-64" />
+              ) : (
+                <div className="flex h-64 items-center justify-center text-xs text-muted">
+                  Grafik ma'lumotlari mavjud emas
+                </div>
               )}
             </Card>
 
@@ -212,21 +221,25 @@ export default function DashboardPage() {
                   </Link>
                 }
               />
-              {series.data ? (
+              {meterBreakdowns.length > 0 ? (
                 <ShareBars
                   lang={lang}
                   unit="kWh"
-                  items={series.data.by_meter.slice(0, 6).map((meter) => ({
+                  items={meterBreakdowns.slice(0, 6).map((meter) => ({
                     label: `${meter.name}${meter.department ? ` · ${meter.department}` : ""}`,
                     value: meter.consumption_kwh,
                     share: meter.share_pct,
                   }))}
                 />
-              ) : (
+              ) : series.loading ? (
                 <div className="flex flex-col gap-3">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Skeleton key={index} className="h-6" />
                   ))}
+                </div>
+              ) : (
+                <div className="flex h-36 items-center justify-center text-xs text-muted">
+                  Hisoblagichlar mavjud emas
                 </div>
               )}
             </Card>
@@ -270,7 +283,7 @@ export default function DashboardPage() {
                   </Link>
                 }
               />
-              {data.anomalies.latest.length === 0 ? (
+              {latestAnomalies.length === 0 ? (
                 <p className="py-6 text-center text-[12px] text-muted">{t("anomalies.empty_title")}</p>
               ) : (
                 <Table>
@@ -282,7 +295,7 @@ export default function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.anomalies.latest.slice(0, 5).map((item) => (
+                    {latestAnomalies.slice(0, 5).map((item) => (
                       <tr key={item.id}>
                         <Td>
                           <div className="flex flex-col">
