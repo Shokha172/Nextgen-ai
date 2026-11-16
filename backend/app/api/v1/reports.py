@@ -30,7 +30,8 @@ def list_reports(tenant: TenantViewer, limit: int = 50, offset: int = 0):
     return exports.list_reports(tenant, limit=limit, offset=offset)
 
 
-@router.post("/reports/export", summary="Generate a PDF / XLSX / CSV report")
+@router.post("/reports", summary="Generate a PDF / XLSX / CSV report")
+@router.post("/reports/export", summary="Generate a PDF / XLSX / CSV report (alias)")
 def export(payload: ExportRequest, tenant: TenantAnalyst):
     row = exports.generate(tenant, kind=payload.kind, fmt=payload.format,
                            period=payload.period, title=payload.title,

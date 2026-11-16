@@ -63,13 +63,14 @@ export default function AdvisorPage() {
     setLoading(true);
 
     try {
+      const validLangs = ["uz", "ru", "en"];
       const res = await api.post<{
         answer: string;
         grounding?: { passed: boolean };
         suggestions?: Array<{ text: string }>;
-      }>("/ai/ask", {
+      }>("/ai/chat", {
         question: q,
-        language: lang in ["uz", "ru", "en"] ? lang : "uz",
+        language: validLangs.includes(lang) ? lang : "uz",
       });
 
       const aiMsg: ChatMessage = {

@@ -24,6 +24,7 @@ class AnalyzeRequest(BaseModel):
 
 
 @router.post("/ai/chat", summary="Ask the grounded AI advisor a question")
+@router.post("/ai/ask", summary="Ask the grounded AI advisor a question (alias)")
 def chat(payload: ChatRequest, tenant: TenantViewer):
     """The answer is generated only from numbers the backend computed from the
     organization's own readings; a numeric guard rejects any invented figure."""
